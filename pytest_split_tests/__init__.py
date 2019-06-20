@@ -86,7 +86,7 @@ def pytest_collection_modifyitems(session, config, items):
     if terminal_reporter is not None:
         terminal_writer = create_terminal_writer(config)
         message = terminal_writer.markup(
-            'Running test group #{0} ({1} tests)\n'.format(
+            '\nRunning test group #{0} ({1} tests)\n'.format(
                 group_id,
                 len(items)
             ),
@@ -94,7 +94,7 @@ def pytest_collection_modifyitems(session, config, items):
         )
         terminal_reporter.write(message)
         message = terminal_writer.markup(
-            '\n'.join([item.name for item in items]),
+            '\n'.join([item.name for item in items])+'\n',
             yellow=True
         )
         terminal_reporter.write(message)
