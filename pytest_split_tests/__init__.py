@@ -7,21 +7,23 @@ from _pytest.config import create_terminal_writer
 
 import pytest
 
+def get_group_size_and_start(total_items, total_groups, group_id):
+    """Calculate group size and start index."""
+    base_size = total_items // total_groups
+    rem = total_items % total_groups
 
-def get_group_size(total_items, total_groups):
-    """Return the group size."""
-    return int(math.ceil(float(total_items) / total_groups))
+    start = base_size * (group_id - 1) + min(group_id - 1, rem)
+    size = base_size + 1 if group_id <= rem  else base_size
 
+    return (start, size)
 
-def get_group(items, group_size, group_id):
+def get_group(items, total_groups, group_id):
     """Get the items from the passed in group based on group size."""
-    start = group_size * (group_id - 1)
-    end = start + group_size
-
-    if start >= len(items) or start < 0:
+    if not 0 < group_id <= total_groups:
         raise ValueError("Invalid test-group argument")
 
-    return items[start:end]
+    start, size = get_group_size_and_start(len(items), total_groups, group_id)
+    return items[start:start+size]
 
 
 def pytest_addoption(parser):
@@ -72,14 +74,13 @@ def pytest_collection_modifyitems(session, config, items):
     unscheduled_tests = [item for item in items if item not in all_prescheduled_tests]
     unscheduled_tests.sort(key=lambda x: x.name)
 
-    if seed is not False:
+    if seed is not None:
         seeded = Random(seed)
         seeded.shuffle(unscheduled_tests)
 
     total_unscheduled_items = len(unscheduled_tests)
 
-    group_size = get_group_size(total_unscheduled_items, group_count)
-    tests_in_group = get_group(unscheduled_tests, group_size, group_id)
+    tests_in_group = get_group(unscheduled_tests, group_count, group_id)
     items[:] = tests_in_group + prescheduled_tests
 
     items.sort(key=original_order.__getitem__)
