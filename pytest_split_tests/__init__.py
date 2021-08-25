@@ -18,8 +18,13 @@ def get_group(items, group_size, group_id):
     start = group_size * (group_id - 1)
     end = start + group_size
 
-    if start >= len(items) or start < 0:
+    if start < 0:
+        # invalid start index
         raise ValueError("Invalid test-group argument")
+    if start >= len(items):
+        # return empty group for groups that remain in the group count
+        # beyond the remaining items
+        return []
 
     return items[start:end]
 
