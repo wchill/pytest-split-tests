@@ -10,13 +10,13 @@ import pytest
 
 def get_group_size(total_items, total_groups):
     """Return the group size."""
-    return int(math.ceil(float(total_items) / total_groups))
+    return float(total_items) / total_groups)
 
 
 def get_group(items, group_size, group_id):
     """Get the items from the passed in group based on group size."""
-    start = group_size * (group_id - 1)
-    end = start + group_size
+    start = int(round(group_size * (group_id - 1)))
+    end = int(round(group_size * group_id))
 
     if start >= len(items) or start < 0:
         raise ValueError("Invalid test-group argument")
